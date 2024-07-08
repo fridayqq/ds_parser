@@ -25,7 +25,7 @@ def get_rich_text():
     for row in rows:
         link, title = row
         driver.get(link)
-        time.sleep(5)
+        time.sleep(50)
 
         try:
             rich_text_element = driver.find_element(By.CLASS_NAME, 'Inner-Page__content')

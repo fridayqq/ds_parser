@@ -44,8 +44,9 @@
 
 3. Установите зависимости:
 
-pip install -r requirements.txt
-
+    '''
+    pip install -r requirements.txt
+    '''
 
 4. Создайте файл `.env` и добавьте необходимые переменные окружения
 
@@ -76,7 +77,6 @@ python scheduler.py
 '''
 TELEGRAMBOT_API_KEY="your_telegram_bot_api_key"
 MODE="production"
-# TEST VALUES
 CHAT_ID="your_chat_id"
 CHAT_THREAD_ID1=0
 FOOTER_TEXT='your_footer_text'
