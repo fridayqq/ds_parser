@@ -20,15 +20,26 @@ if not NEWS_SITE_URL:
     raise EnvironmentError("Переменная окружения NEWS_SITE_URL не установлена.")
 
 # Настройка опций браузера
+from selenium import webdriver
+from selenium.webdriver.firefox.options import Options
+from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
+
+capabilities = DesiredCapabilities.FIREFOX
+capabilities['marionette'] = True
+
+
 firefox_options = Options()
-firefox_options.add_argument('--headless')
+firefox_options.add_argument('--headless')  # Запуск в режиме без графического интерфейса, если нужно
 firefox_options.add_argument('--no-sandbox')
-firefox_options.add_argument('--disable-gpu')
-firefox_options.binary_location = '/usr/bin/firefox'  # Укажите путь к бинарному файлу Firefox
+firefox_options.add_argument('--disable-dev-shm-usage')
+
+driver = webdriver.Firefox(options=firefox_options, executable_path='/usr/local/bin/geckodriver')
+
 
 def fetch_news():
     logger.info(f"Начало парсинга сайта: {NEWS_SITE_URL}")
-    driver = webdriver.Firefox(options=firefox_options)
+    driver = webdriver.Firefox(capabilities=capabilities,options=firefox_options)
+    driver.set_page_load_timeout(60) 
     driver.get(NEWS_SITE_URL)
     time.sleep(10)
 
