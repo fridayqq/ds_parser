@@ -32,8 +32,8 @@
 
 1. Клонируйте репозиторий:
    ```
-   git clone https://github.com/your-username/telegram-news-poster.git
-   cd telegram-news-poster
+   git clone https://github.com/fridayqq/ds_parser
+   cd ds_parser
    ```
 
 2. Создайте и активируйте виртуальное окружение:
@@ -44,9 +44,9 @@
 
 3. Установите зависимости:
 
-    '''
+    ```
     pip install -r requirements.txt
-    '''
+    ```
 
 4. Создайте файл `.env` и добавьте необходимые переменные окружения
 
@@ -56,9 +56,9 @@
 ### Запуск парсинга и публикации новостей
 
 Для последовательного запуска всех скриптов используйте `scheduler.py`:
-
-python scheduler.py
-
+    ```
+    python scheduler.py
+    ```
 `scheduler.py` будет запускать `parse_web_page.py`, `get_rich_text.py` и `telegram_poster.py` по очереди с рандомными промежутками времени между 5 и 10 минут.
 
 ### Описание скриптов
@@ -70,16 +70,16 @@ python scheduler.py
 
 ## Логирование
 
-Логи каждого запуска скрипта сохраняются в файл с именем `scheduler_{time}.log` в формате `rotation="1 MB"` и `retention="10 days"`.
+Логи каждого запуска скрипта сохраняются в файл с именем `scheduler}.log` в формате `rotation="10 MB"` и `retention="10 days"`.
 
 ## Пример файла `.env`
 
-'''
-TELEGRAMBOT_API_KEY="your_telegram_bot_api_key"
-MODE="production"
-CHAT_ID="your_chat_id"
-CHAT_THREAD_ID1=0
-FOOTER_TEXT='your_footer_text'
-POST_DELAY=5
-NEWS_SITE_URL="https://secret_website.com/"
-```
+    ```
+    TELEGRAMBOT_API_KEY="your_telegram_bot_api_key"
+    MODE="production"
+    CHAT_ID="your_chat_id"
+    CHAT_THREAD_ID1=0
+    FOOTER_TEXT='your_footer_text'
+    POST_DELAY=5
+    NEWS_SITE_URL="https://secret_website.com/"
+    ```
