@@ -1,29 +1,39 @@
+import sqlite3
 import time
+import html
 from selenium import webdriver
 from selenium.webdriver.common.by import By
-from selenium.webdriver.chrome.options import Options
+from selenium.webdriver.firefox.options import Options
 from dotenv import load_dotenv
 import os
 from loguru import logger
-from database import create_table, link_exists, insert_news
 
 # Загрузка переменных окружения из .env файла
 load_dotenv()
 
 # Настройки базы данных
+DB_PATH = 'news_data.db'
 NEWS_SITE_URL = os.getenv('NEWS_SITE_URL')
+
+# Проверьте, загружается ли переменная окружения
+if not NEWS_SITE_URL:
+    raise EnvironmentError("Переменная окружения NEWS_SITE_URL не установлена.")
 
 # Настройка опций браузера
 firefox_options = Options()
 firefox_options.add_argument('--headless')
 firefox_options.add_argument('--no-sandbox')
 firefox_options.add_argument('--disable-gpu')
+firefox_options.binary_location = '/usr/bin/firefox'  # Укажите путь к бинарному файлу Firefox
 
 def fetch_news():
     logger.info(f"Начало парсинга сайта: {NEWS_SITE_URL}")
     driver = webdriver.Firefox(options=firefox_options)
     driver.get(NEWS_SITE_URL)
     time.sleep(10)
+
+    conn = sqlite3.connect(DB_PATH)
+    cursor = conn.cursor()
 
     new_news_count = 0
 
@@ -40,8 +50,16 @@ def fetch_news():
                     images = article.find_elements(By.CLASS_NAME, 'Post-News__image')
                     image_urls = ', '.join([img.get_attribute('src') for img in images])
 
-                    if not link_exists(link):
-                        insert_news(link, title, image_urls)
+                    # Проверка наличия новости в базе данных
+                    cursor.execute('SELECT COUNT(1) FROM news WHERE link = ?', (link,))
+                    exists = cursor.fetchone()[0]
+
+                    if not exists:
+                        cursor.execute(
+                            'INSERT INTO news (link, title, images) VALUES (?, ?, ?)',
+                            (link, title, image_urls)
+                        )
+                        conn.commit()
                         new_news_count += 1
                         logger.info(f"Новость '{title}' добавлена в базу данных")
                 except Exception as e:
@@ -50,8 +68,10 @@ def fetch_news():
     if new_news_count == 0:
         logger.info("База данных актуальна, новых новостей нет.")
 
+    conn.close()
     driver.quit()
 
 if __name__ == "__main__":
+    from database import create_table
     create_table()
     fetch_news()

@@ -16,7 +16,7 @@ logger.add(sys.stderr, level="INFO")  # Оставляем логи уровня
 def run_script(script_name):
     try:
         logger.info(f"Запуск {script_name}")
-        subprocess.run(["python3", script_name], check=True)
+        subprocess.run(["python", script_name], check=True)
         logger.info(f"{script_name} успешно выполнен")
     except subprocess.CalledProcessError as e:
         logger.error(f"Ошибка при выполнении {script_name}: {e}")
