@@ -11,13 +11,16 @@ from database import fetch_unparsed_links, update_parsed
 load_dotenv()
 
 # Настройка опций браузера
-chrome_options = Options()
-chrome_options.add_argument('--headless')  # Запуск в фоновом режиме
-chrome_options.add_argument('--disable-gpu')
-chrome_options.add_argument('--no-sandbox')
+firefox_options = Options()
+firefox_options.add_argument('--headless')
+firefox_options.add_argument('--no-sandbox')
+firefox_options.add_argument('--disable-gpu')
+
+# Запуск браузера
+
 
 def get_rich_text():
-    driver = webdriver.Chrome(options=chrome_options)
+    driver = webdriver.Firefox(options=firefox_options)
     rows = fetch_unparsed_links()
 
     updated_count = 0

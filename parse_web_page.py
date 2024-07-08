@@ -14,14 +14,14 @@ load_dotenv()
 NEWS_SITE_URL = os.getenv('NEWS_SITE_URL')
 
 # Настройка опций браузера
-chrome_options = Options()
-chrome_options.add_argument('--headless')  # Запуск в фоновом режиме
-chrome_options.add_argument('--disable-gpu')
-chrome_options.add_argument('--no-sandbox')
+firefox_options = Options()
+firefox_options.add_argument('--headless')
+firefox_options.add_argument('--no-sandbox')
+firefox_options.add_argument('--disable-gpu')
 
 def fetch_news():
     logger.info(f"Начало парсинга сайта: {NEWS_SITE_URL}")
-    driver = webdriver.Chrome(options=chrome_options)
+    driver = webdriver.Firefox(options=firefox_options)
     driver.get(NEWS_SITE_URL)
     time.sleep(10)
 
