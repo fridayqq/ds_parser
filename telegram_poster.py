@@ -13,7 +13,7 @@ load_dotenv()
 # Настройки Telegram
 TOKEN = os.getenv('TELEGRAMBOT_API_KEY')
 CHANNEL_ID = os.getenv('CHAT_ID')
-CHAT_THREAD_ID = int(os.getenv('CHAT_THREAD_ID1', 0))  # Используем переменную окружения для ID потока
+CHAT_THREAD_ID = int(os.getenv('CHAT_THREAD_ID', 0))  # Используем переменную окружения для ID потока
 FOOTER_TEXT = os.getenv('FOOTER_TEXT')
 POST_DELAY = int(os.getenv('POST_DELAY', 5))  # Задержка между постами в секундах (по умолчанию 5 секунд)
 

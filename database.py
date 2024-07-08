@@ -48,3 +48,11 @@ def update_parsed(link, rich_text=''):
     cursor.execute('UPDATE news SET rich_text = ?, parsed = 1 WHERE link = ?', (rich_text, link))
     conn.commit()
     conn.close()
+
+
+def mark_as_parsed_and_posted(link):
+    conn = sqlite3.connect('news_data.db')
+    cursor = conn.cursor()
+    cursor.execute('UPDATE news SET parsed = 1, posted = 1 WHERE link = ?', (link,))
+    conn.commit()
+    conn.close()
