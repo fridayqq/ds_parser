@@ -27,7 +27,7 @@ def main():
     while True:
         for script in scripts:
             run_script(script)
-            sleep_time = random.randint(30, 60)  # Случайное время от 5 до 10 минут
+            sleep_time = random.randint(3, 6)  # Случайное время от 5 до 10 минут
             logger.info(f"Пауза {sleep_time // 60} минут между выполнением скриптов")
             time.sleep(sleep_time)
 
