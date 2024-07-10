@@ -64,6 +64,9 @@ def post_news_to_telegram():
             f"{FOOTER_TEXT}"
         )
 
+        # Сначала отметим новость как опубликованную
+        mark_as_posted(link)
+
         try:
             if images:
                 image_urls = images.split(', ')
@@ -81,11 +84,9 @@ def post_news_to_telegram():
                 for part in parts:
                     bot.send_message(chat_id=CHANNEL_ID, text=part, parse_mode='HTML', reply_to_message_id=CHAT_THREAD_ID, disable_web_page_preview=True)
 
-            mark_as_posted(link)
             logger.info(f"Новость '{title}' опубликована в Telegram")
 
         except Exception as e:
-            mark_as_posted(link)  # Отмечаем новость как опубликованную даже в случае ошибки
             logger.error(f"Ошибка при отправке новости '{title}' в Telegram: {e}")
 
         # Пауза между постами
