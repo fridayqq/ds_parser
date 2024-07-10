@@ -58,7 +58,7 @@ def post_news_to_telegram():
     for item in news_items:
         link, title, images, rich_text = item
         escaped_title = html.escape(title)
-        escaped_rich_text = html.escape(rich_text)
+        escaped_rich_text = html.escape(rich_text or '')
         base_message = (
             f" \U0001F6CE <b>{escaped_title}</b>\n\n{escaped_rich_text}\n\n"
             f"{FOOTER_TEXT}"
@@ -72,26 +72,28 @@ def post_news_to_telegram():
                     if first_message:
                         parts = split_message(base_message, IMAGE_MESSAGE_LIMIT)
                         for part in parts:
-                            mark_as_posted(link)
                             bot.send_photo(chat_id=CHANNEL_ID, photo=image_url, caption=part, parse_mode='HTML', reply_to_message_id=CHAT_THREAD_ID)
                             first_message = False
                     else:
-                        mark_as_posted(link)
                         bot.send_photo(chat_id=CHANNEL_ID, photo=image_url, caption="", parse_mode='HTML', reply_to_message_id=CHAT_THREAD_ID)
             else:
                 parts = split_message(base_message, MESSAGE_LIMIT)
                 for part in parts:
-                    mark_as_posted(link)
                     bot.send_message(chat_id=CHANNEL_ID, text=part, parse_mode='HTML', reply_to_message_id=CHAT_THREAD_ID, disable_web_page_preview=True)
 
             mark_as_posted(link)
             logger.info(f"Новость '{title}' опубликована в Telegram")
 
-            # Пауза между постами
-            time.sleep(POST_DELAY)
-
         except Exception as e:
+            mark_as_posted(link)  # Отмечаем новость как опубликованную даже в случае ошибки
             logger.error(f"Ошибка при отправке новости '{title}' в Telegram: {e}")
 
+        # Пауза между постами
+        time.sleep(POST_DELAY)
+
 if __name__ == "__main__":
-    post_news_to_telegram()
+    try:
+        post_news_to_telegram()
+    except Exception as e:
+        logger.error(f"Непредвиденная ошибка: {e}")
+        sys.exit(1)
