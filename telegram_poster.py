@@ -72,13 +72,16 @@ def post_news_to_telegram():
                     if first_message:
                         parts = split_message(base_message, IMAGE_MESSAGE_LIMIT)
                         for part in parts:
+                            mark_as_posted(link)
                             bot.send_photo(chat_id=CHANNEL_ID, photo=image_url, caption=part, parse_mode='HTML', reply_to_message_id=CHAT_THREAD_ID)
                             first_message = False
                     else:
+                        mark_as_posted(link)
                         bot.send_photo(chat_id=CHANNEL_ID, photo=image_url, caption="", parse_mode='HTML', reply_to_message_id=CHAT_THREAD_ID)
             else:
                 parts = split_message(base_message, MESSAGE_LIMIT)
                 for part in parts:
+                    mark_as_posted(link)
                     bot.send_message(chat_id=CHANNEL_ID, text=part, parse_mode='HTML', reply_to_message_id=CHAT_THREAD_ID, disable_web_page_preview=True)
 
             mark_as_posted(link)
