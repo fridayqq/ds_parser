@@ -1,11 +1,11 @@
-import sqlite3
+import time
 import telebot
 from dotenv import load_dotenv
 import os
-import sys
 import html
-import time
 from loguru import logger
+from database import fetch_unposted_news, mark_as_posted
+import sys
 
 # Загрузка переменных окружения из .env файла
 load_dotenv()
@@ -22,21 +22,6 @@ bot = telebot.TeleBot(TOKEN)
 # Ограничения Telegram
 MESSAGE_LIMIT = 4096
 IMAGE_MESSAGE_LIMIT = 1024
-
-def fetch_unposted_news():
-    conn = sqlite3.connect('news_data.db')
-    cursor = conn.cursor()
-    cursor.execute('SELECT link, title, images, rich_text FROM news WHERE posted = 0')
-    rows = cursor.fetchall()
-    conn.close()
-    return rows
-
-def mark_as_posted(link):
-    conn = sqlite3.connect('news_data.db')
-    cursor = conn.cursor()
-    cursor.execute('UPDATE news SET parsed = 1, posted = 1 WHERE link = ?', (link,))
-    conn.commit()
-    conn.close()
 
 def split_message(message, limit):
     """Функция для разделения длинных сообщений на несколько частей"""
@@ -70,15 +55,17 @@ def post_news_to_telegram():
         try:
             if images:
                 image_urls = images.split(', ')
-                first_message = True
-                for image_url in image_urls:
-                    if first_message:
-                        parts = split_message(base_message, IMAGE_MESSAGE_LIMIT)
-                        for part in parts:
-                            bot.send_photo(chat_id=CHANNEL_ID, photo=image_url, caption=part, parse_mode='HTML', reply_to_message_id=CHAT_THREAD_ID)
-                            first_message = False
+                media_group = [telebot.types.InputMediaPhoto(image_url) for image_url in image_urls]
+
+                parts = split_message(base_message, IMAGE_MESSAGE_LIMIT)
+                for part in parts:
+                    if len(media_group) > 0:
+                        media_group[0].caption = part
+                        media_group[0].parse_mode = 'HTML'
+                        bot.send_media_group(chat_id=CHANNEL_ID, media=media_group, reply_to_message_id=CHAT_THREAD_ID)
+                        media_group = []  # очистить media_group после отправки
                     else:
-                        bot.send_photo(chat_id=CHANNEL_ID, photo=image_url, caption="", parse_mode='HTML', reply_to_message_id=CHAT_THREAD_ID)
+                        bot.send_message(chat_id=CHANNEL_ID, text=part, parse_mode='HTML', reply_to_message_id=CHAT_THREAD_ID, disable_web_page_preview=True)
             else:
                 parts = split_message(base_message, MESSAGE_LIMIT)
                 for part in parts:

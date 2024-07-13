@@ -16,7 +16,7 @@ logger.add(sys.stderr, level="INFO")  # Оставляем логи уровня
 def run_script(script_name):
     try:
         logger.info(f"Запуск {script_name}")
-        subprocess.run(["python", script_name], check=True)
+        subprocess.run(["python3", script_name], check=True)
         logger.info(f"{script_name} успешно выполнен")
     except subprocess.CalledProcessError as e:
         logger.error(f"Ошибка при выполнении {script_name}: {e}")
@@ -27,7 +27,7 @@ def main():
     while True:
         for script in scripts:
             run_script(script)
-            sleep_time = random.randint(3, 6)  # Случайное время от 5 до 10 минут
+            sleep_time = random.randint(180, 360)  # Случайное время от 3 до 6 минут
             logger.info(f"Пауза {sleep_time // 60} минут между выполнением скриптов")
             time.sleep(sleep_time)
 

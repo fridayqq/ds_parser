@@ -1,4 +1,12 @@
-#поскольку настройка Убунты доставляет боль, добавлю скрипты тут, проблема с не той версией хрома решается установкой webdriver_manager
+#поскольку настройка Убунты доставляет боль, добавлю скрипты тут.
+#проблема с не той версией хрома решается установкой webdriver_manager
+#для запуска на Ubuntu надо заменить в файле scheduler.py (добавить цифру 3): 
+    subprocess.run(["python", script_name], check=True) 
+    на 
+    subprocess.run(["python3", script_name], check=True)
+
+
+
 
 sudo apt update
 sudo apt install -y wget curl unzip xvfb libxi6 libgconf-2-4
