@@ -43,11 +43,12 @@ def post_news_to_telegram():
     for item in news_items:
         link, title, images, rich_text = item
         escaped_title = html.escape(title)
-        escaped_rich_text = html.escape(rich_text or '')
-        base_message = (
-            f" \U0001F6CE <b>{escaped_title}</b>\n\n{escaped_rich_text}\n\n"
-            f"{FOOTER_TEXT}"
-        )
+        escaped_rich_text = html.escape(rich_text.strip()) if rich_text else ''  # Удаляем лишние пробелы если rich_text не пустой
+
+        base_message = f" \U0001F6CE <b>{escaped_title}</b>\n\n"
+        if escaped_rich_text:
+            base_message += f"{escaped_rich_text}\n\n"
+        base_message += f"{FOOTER_TEXT}"
 
         # Сначала отметим новость как опубликованную
         mark_as_posted(link)
