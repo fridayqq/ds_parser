@@ -15,6 +15,12 @@ TOKEN = os.getenv('TELEGRAMBOT_API_KEY')
 CHANNEL_ID = os.getenv('CHAT_ID')
 CHAT_THREAD_ID = int(os.getenv('CHAT_THREAD_ID', 0))  # Используем переменную окружения для ID потока
 FOOTER_TEXT = os.getenv('FOOTER_TEXT')
+
+# Настройки второго канала
+CHANNEL_ID2 = os.getenv('CHAT_ID2')
+CHAT_THREAD_ID2 = int(os.getenv('CHAT_THREAD_ID2', 0))
+FOOTER_TEXT2 = os.getenv('FOOTER_TEXT2')
+
 POST_DELAY = int(os.getenv('POST_DELAY', 5))  # Задержка между постами в секундах (по умолчанию 5 секунд)
 
 bot = telebot.TeleBot(TOKEN)
@@ -50,35 +56,48 @@ def post_news_to_telegram():
             base_message += f"{escaped_rich_text}\n\n"
         base_message += f"{FOOTER_TEXT}"
 
+        base_message2 = f" \U0001F6CE <b>{escaped_title}</b>\n\n"
+        if escaped_rich_text:
+            base_message2 += f"{escaped_rich_text}\n\n"
+        base_message2 += f"{FOOTER_TEXT2}"
+
         # Сначала отметим новость как опубликованную
         mark_as_posted(link)
 
         try:
-            if images:
-                image_urls = images.split(', ')
-                media_group = [telebot.types.InputMediaPhoto(image_url) for image_url in image_urls]
+            # Публикация в первом канале
+            post_message(CHANNEL_ID, CHAT_THREAD_ID, base_message, images)
+            logger.info(f"Новость '{title}' опубликована в первом канале Telegram")
+            
+            # Пауза между постами
+            time.sleep(POST_DELAY)
 
-                parts = split_message(base_message, IMAGE_MESSAGE_LIMIT)
-                for part in parts:
-                    if len(media_group) > 0:
-                        media_group[0].caption = part
-                        media_group[0].parse_mode = 'HTML'
-                        bot.send_media_group(chat_id=CHANNEL_ID, media=media_group, reply_to_message_id=CHAT_THREAD_ID)
-                        media_group = []  # очистить media_group после отправки
-                    else:
-                        bot.send_message(chat_id=CHANNEL_ID, text=part, parse_mode='HTML', reply_to_message_id=CHAT_THREAD_ID, disable_web_page_preview=True)
-            else:
-                parts = split_message(base_message, MESSAGE_LIMIT)
-                for part in parts:
-                    bot.send_message(chat_id=CHANNEL_ID, text=part, parse_mode='HTML', reply_to_message_id=CHAT_THREAD_ID, disable_web_page_preview=True)
-
-            logger.info(f"Новость '{title}' опубликована в Telegram")
+            # Публикация во втором канале через 1 минуту
+            time.sleep(60)
+            post_message(CHANNEL_ID2, CHAT_THREAD_ID2, base_message2, images)
+            logger.info(f"Новость '{title}' опубликована во втором канале Telegram")
 
         except Exception as e:
             logger.error(f"Ошибка при отправке новости '{title}' в Telegram: {e}")
 
-        # Пауза между постами
-        time.sleep(POST_DELAY)
+def post_message(channel_id, thread_id, message, images):
+    if images:
+        image_urls = images.split(', ')
+        media_group = [telebot.types.InputMediaPhoto(image_url) for image_url in image_urls]
+
+        parts = split_message(message, IMAGE_MESSAGE_LIMIT)
+        for part in parts:
+            if len(media_group) > 0:
+                media_group[0].caption = part
+                media_group[0].parse_mode = 'HTML'
+                bot.send_media_group(chat_id=channel_id, media=media_group, reply_to_message_id=thread_id)
+                media_group = []  # очистить media_group после отправки
+            else:
+                bot.send_message(chat_id=channel_id, text=part, parse_mode='HTML', reply_to_message_id=thread_id, disable_web_page_preview=True)
+    else:
+        parts = split_message(message, MESSAGE_LIMIT)
+        for part in parts:
+            bot.send_message(chat_id=channel_id, text=part, parse_mode='HTML', reply_to_message_id=thread_id, disable_web_page_preview=True)
 
 if __name__ == "__main__":
     try:
