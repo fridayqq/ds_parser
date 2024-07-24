@@ -18,7 +18,6 @@ FOOTER_TEXT = os.getenv('FOOTER_TEXT')
 
 # Настройки второго канала
 CHANNEL_ID2 = os.getenv('CHAT_ID2')
-CHAT_THREAD_ID2 = int(os.getenv('CHAT_THREAD_ID2', 0))
 FOOTER_TEXT2 = os.getenv('FOOTER_TEXT2')
 
 POST_DELAY = int(os.getenv('POST_DELAY', 5))  # Задержка между постами в секундах (по умолчанию 5 секунд)
@@ -74,7 +73,7 @@ def post_news_to_telegram():
 
             # Публикация во втором канале через 1 минуту
             time.sleep(60)
-            post_message(CHANNEL_ID2, CHAT_THREAD_ID2, base_message2, images)
+            post_message(CHANNEL_ID2, None, base_message2, images)
             logger.info(f"Новость '{title}' опубликована во втором канале Telegram")
 
         except Exception as e:
@@ -90,14 +89,23 @@ def post_message(channel_id, thread_id, message, images):
             if len(media_group) > 0:
                 media_group[0].caption = part
                 media_group[0].parse_mode = 'HTML'
-                bot.send_media_group(chat_id=channel_id, media=media_group, reply_to_message_id=thread_id)
+                if thread_id:
+                    bot.send_media_group(chat_id=channel_id, media=media_group, reply_to_message_id=thread_id)
+                else:
+                    bot.send_media_group(chat_id=channel_id, media=media_group)
                 media_group = []  # очистить media_group после отправки
             else:
-                bot.send_message(chat_id=channel_id, text=part, parse_mode='HTML', reply_to_message_id=thread_id, disable_web_page_preview=True)
+                if thread_id:
+                    bot.send_message(chat_id=channel_id, text=part, parse_mode='HTML', reply_to_message_id=thread_id, disable_web_page_preview=True)
+                else:
+                    bot.send_message(chat_id=channel_id, text=part, parse_mode='HTML', disable_web_page_preview=True)
     else:
         parts = split_message(message, MESSAGE_LIMIT)
         for part in parts:
-            bot.send_message(chat_id=channel_id, text=part, parse_mode='HTML', reply_to_message_id=thread_id, disable_web_page_preview=True)
+            if thread_id:
+                bot.send_message(chat_id=channel_id, text=part, parse_mode='HTML', reply_to_message_id=thread_id, disable_web_page_preview=True)
+            else:
+                bot.send_message(chat_id=channel_id, text=part, parse_mode='HTML', disable_web_page_preview=True)
 
 if __name__ == "__main__":
     try:
