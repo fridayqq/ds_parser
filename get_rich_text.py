@@ -44,7 +44,7 @@ def get_rich_text():
 
             # Ожидание загрузки всех элементов с нужным классом и их видимости
             rich_text_elements = wait.until(
-                EC.visibility_of_all_elements_located((By.CLASS_NAME, 'Inner-Page__content'))
+                EC.visibility_of_all_elements_located((By.CLASS_NAME, 'block-richtext'))
             )
 
             if rich_text_elements:
